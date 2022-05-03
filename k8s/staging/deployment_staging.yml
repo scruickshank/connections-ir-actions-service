@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-service-staging
+  namespace: section-31-staging
+  labels:
+    app: document-service-staging
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: document-service-staging
+      serve: 'yes'
+  template:
+    metadata:
+      labels:
+        app: document-service-staging
+        track: stable
+        serve: 'yes'
+      annotations:
+        logging.meltwater.io/system: "section-31-staging"
+        logging.meltwater.io/service: "document-service-staging" 
+        logging.meltwater.io/environment: "staging"
+        logging.meltwater.io/type: "nested_json"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: document-service-staging
+          image: 576727886658.dkr.ecr.eu-west-1.amazonaws.com/document-service:${VERSION}
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 128m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+          env:
+            - name: LOGGER_NAME
+              value: document-service-staging
+            - name: LOGGER_SERVICE
+              value: document-service-staging
+            - name: LOGGER_SYSTEM
+              value: section_31_staging
+            - name: LOGGER_ENVIRONMENT
+              value: staging
+            - name: S3_BUCKET
+              value: connections-databus-certs-staging
+            - name: S3_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: connections-linkedin-poll-service
+                  key: awsS3Key 
+            - name: S3_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: connections-linkedin-poll-service
+                  key: awsS3Password
+            - name: sqsKey
+              valueFrom:
+                secretKeyRef:
+                  name: connections-linkedin-poll-service
+                  key: awskey
+            - name: sqsSecret
+              valueFrom:
+                secretKeyRef:
+                  name: connections-linkedin-poll-service
+                  key: awssecret
+            - name: snsKey
+              valueFrom:
+                secretKeyRef:
+                  name: connections-databus-sender-secrets
+                  key: awsSnsKey
+            - name: snsSecret
+              valueFrom:
+                secretKeyRef:
+                  name: connections-databus-sender-secrets
+                  key: awsSnsSecret
+            - name: ENV
+              value: staging
+            - name: DOCUMENT_SERVICE_URL
+              value: https://mi-staging.content.fairhair.ai/v2/documents
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+

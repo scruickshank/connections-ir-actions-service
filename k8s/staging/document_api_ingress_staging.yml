@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/target: section-31-staging-ingress.meltwater.io
+    kubernetes.io/ingress.class: section-31-staging
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.allow-https: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:eu-west-1:576727886658:certificate/530d35a6-ce6f-4d6a-9cf8-dc6a49baf63e
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    prometheus.io/probe: "true"
+  name: document-service-staging
+  namespace: section-31-staging
+spec:
+  rules:
+  - host: document.staging.section31.meltwater.io
+    http:
+      paths:
+      - backend:
+          serviceName: document-service-staging
+          servicePort: 80

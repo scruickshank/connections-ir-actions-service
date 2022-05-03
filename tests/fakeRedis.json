@@ -1,0 +1,70 @@
+
+    {
+       "page_name":"Royal Sundaram",
+       "documentId":"Y2jIjWva0wYvpD4gC0OMzZ3bItE",
+       "externalId":"10162898522068647_10163065370808647",
+       "body":{
+          "content":{
+             "text":"Irresponsible behavior Royal sundram properly not respond...."
+          },
+          "publishDate":{
+             "date":1650457280000
+          }
+       },
+       "metaData":{
+          "url":"https://www.facebook.com/355663263646/posts/10162898522068647/?comment_id=10163065370808647",
+          "authors":[
+             {
+                "authorInfo":{
+                   "externalId":"7223244101083062",
+                   "rawName":"Bablu Giri Gosavi"
+                },
+                "imageUrl":"https://platform-lookaside.fbsbx.com/platform/profilepic/?psid=7223244101083062&height=50&width=50&ext=1654178318&hash=AeQSVcF0V6mHsAW5lrA"
+             }
+          ],
+          "provider":{
+             "type":"socialconnections"
+          },
+          "source":{
+             "socialOriginType":"facebook",
+             "informationType":"social",
+             "id":"355663263646"
+          },
+          "applicationTags":[
+             "connectionsCredential=14888",
+             "isHidden=false",
+             "userLikes=false"
+          ],
+          "fetchingTime":1651586323,
+          "inReplyTo":{
+             
+          },
+          "thread":{
+             "url":"https://www.facebook.com/355663263646/posts/10162898522068647/?comment_id=10163065370808647",
+             "title":"(Message not available)"
+          },
+          "adCampaign":{},
+          "discussionType":"qt",
+          "mediaType":"sc"
+       },
+       "attachments":[
+          
+       ],
+       "systemData":{
+          "policies":{
+             "storage":{
+                "privateTo":[
+                   "5b4823c536be02b3b1a7861b"
+                ],
+                "private":true
+             }
+          }
+       },
+       "enrichments":{
+          "socialScores":{
+             "fb_post_comments":4,
+             "fb_post_reactions":0
+          }
+       }
+    }
+ 

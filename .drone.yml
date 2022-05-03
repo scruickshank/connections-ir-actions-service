@@ -1,0 +1,136 @@
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+    - name: build-staging
+      pull: always
+      image: plugins/ecr
+      settings:
+        build_args_from_env:
+          - NPM_TOKEN
+        region: eu-west-1
+        registry: 576727886658.dkr.ecr.eu-west-1.amazonaws.com
+        repo: 576727886658.dkr.ecr.eu-west-1.amazonaws.com/document-service
+        tags:
+          - ${DRONE_COMMIT_SHA}
+          - latest
+      environment:
+        NODE_ENV: staging
+        ECR_ACCESS_KEY:
+          from_secret: ecr_access_key_staging
+        ECR_SECRET_KEY:
+          from_secret: ecr_secret_key_staging
+        NPM_TOKEN:
+          from_secret: npm_token
+      when:
+        branch:
+          - main
+        event:
+          - push
+
+    - name: deploy-service-staging
+      image: meltwaterfoundation/drone-kubectl:1.15.6
+      depends_on:
+        - build-staging
+      environment:
+        KUBE_SERVER: https://api.ew1k8s2.prod.foundation.meltwater.io
+        KUBE_TOKEN_STAGING:
+          from_secret: kube_token_staging
+        EW1K8S2_CA_CRT: 
+          from_secret: ew1k8s2_ca_crt
+      commands:
+        - kubectl config set-credentials default --token=$${KUBE_TOKEN_STAGING}
+        - echo $EW1K8S2_CA_CRT | base64 -d > ca.crt
+        - kubectl config set-cluster default --server=$${KUBE_SERVER} --certificate-authority=ca.crt --embed-certs=true
+        - kubectl config set-context default --cluster=default --user=default
+        - VERSION=${DRONE_COMMIT_SHA} envsubst <k8s/staging/deployment_staging.yml | kubectl --context default apply --namespace section-31-staging -f -
+        #- kubectl --context default apply --namespace section-31-staging -f k8s/staging/service-hpa.yml
+        - kubectl --context default apply --namespace section-31-staging -f k8s/staging/document_api_service_staging.yml
+        - kubectl --context default apply --namespace section-31-staging -f k8s/staging/document_api_ingress_staging.yml
+      when:
+        branch: 
+          - main
+        event: 
+          - push
+
+    - name: build-production
+      pull: always
+      image: plugins/ecr
+      settings:
+        build_args_from_env:
+          - NPM_TOKEN
+        region: eu-west-1
+        registry: 295413561492.dkr.ecr.eu-west-1.amazonaws.com
+        repo: 295413561492.dkr.ecr.eu-west-1.amazonaws.com/document-service
+        tags:
+          - ${DRONE_COMMIT_SHA}
+          - latest
+      environment:
+        NODE_ENV: production
+        ECR_ACCESS_KEY:
+          from_secret: ecr_access_key
+        ECR_SECRET_KEY:
+          from_secret: ecr_secret_key
+        NPM_TOKEN:
+          from_secret: npm_token
+      when:
+        branch:
+          - production
+        event:
+          - push
+
+    - name: deploy-service-production
+      image: meltwaterfoundation/drone-kubectl:1.15.6
+      depends_on:
+        - build-production
+      environment:
+        KUBE_SERVER: https://api.ew1k8s2.prod.foundation.meltwater.io
+        KUBE_TOKEN_PROD:
+          from_secret: kube_token_prod
+        EW1K8S2_CA_CRT: 
+          from_secret: ew1k8s2_ca_crt
+      commands:
+        - kubectl config set-credentials default --token=$${KUBE_TOKEN_PROD}
+        - echo $EW1K8S2_CA_CRT | base64 -d > ca.crt
+        - kubectl config set-cluster default --server=$${KUBE_SERVER} --certificate-authority=ca.crt --embed-certs=true
+        - kubectl config set-context default --cluster=default --user=default
+        - VERSION=${DRONE_COMMIT_SHA} envsubst <k8s/prod/deployment_prod.yml | kubectl --context default apply --namespace section-31-prod -f -
+        #- kubectl --context default apply --namespace section-31-prod -f k8s/prod/service-hpa.yml
+        - kubectl --context default apply --namespace section-31-prod -f k8s/prod/document_api_service_prod.yml
+        - kubectl --context default apply --namespace section-31-prod -f k8s/prod/document_api_ingress_prod.yml
+      when:
+        branch: 
+          - production
+        event: 
+          - push
+
+    - name: slack-events
+      pull: if-not-exists
+      image: plugins/slack
+      depends_on:
+        - deploy-service-staging
+        - deploy-service-production
+      settings:
+        webhook: https://hooks.slack.com/services/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
+        channel: eng-devops-section31
+        username: "Drone: ${DRONE_REPO_NAME}"
+        template: |
+          {{#success build.status}}
+            {{build.status}} : {{repo.name}} - {{build.event}} ( {{build.branch}} ) by {{build.author}}, Good Job!
+          {{else}}
+            {{build.status}} : {{repo.name}} - {{build.event}} ( {{build.branch}} ) by {{build.author}}. Fix me please.
+          {{/success}}
+      when:
+        status: [ success, failure ]
+
+trigger:
+  event:
+    include:
+      - push
+
+ 
+      

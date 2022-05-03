@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: document-service-prod-scaledobject
+  namespace: section-31-prod
+spec:
+  scaleTargetRef:
+    name: document-service
+  pollingInterval: 15
+  cooldownPeriod: 60
+  minReplicaCount: 125
+  maxReplicaCount: 150
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://thanos-query.prometheus-prod.svc.cluster.local:9090
+      metricName: nginx_ingress_controller_requests
+      threshold: '800'
+      query: sum(rate(nginx_ingress_controller_requests{namespace="section-31-prod",ingress="document-service-prod"}[1m]))

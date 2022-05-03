@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/target: section-31-prod-ingress.meltwater.io
+    kubernetes.io/ingress.class: section-31-prod
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.allow-https: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:eu-west-1:295413561492:certificate/24f32260-5378-44f6-a1c9-57b2cc8215c6
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    prometheus.io/probe: "true"
+  name: document-service-prod
+  namespace: section-31-prod
+spec:
+  rules:
+  - host: document.section31.meltwater.io
+    http:
+      paths:
+      - backend:
+          serviceName: document-service-prod
+          servicePort: 80

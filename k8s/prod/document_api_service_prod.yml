@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-service-prod
+  namespace: section-31-prod
+  labels:
+    app: document-service-prod
+spec:
+  selector:
+    app: document-service-prod
+    serve: "yes"
+  ports:
+  - port: 80
+    targetPort: 80

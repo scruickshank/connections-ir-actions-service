@@ -1,0 +1,17 @@
+{
+  "name": "connections-document-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@meltwater/mlabs-logger": "^9.1.1",
+    "axios": "^0.27.2",
+    "qs": "^6.10.3"
+  }
+}
